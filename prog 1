@@ -1,0 +1,186 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct Employee
+{
+    int employeeID;
+    char name[50];
+    float salary;
+    char department[50];
+};
+void insertEmployee(struct Employee **emp, int *n);
+void deleteEmployee(struct Employee **emp, int *n);
+void searchEmployee(struct Employee *emp, int n);
+void updateSalary(struct Employee *emp, int n);
+void displayEmployees(struct Employee *emp, int n);
+int main()
+{
+    struct Employee *emp = NULL;
+    int n, i, choice;
+    printf("Enter the number of employees: ");
+    scanf("%d", &n);
+    emp = (struct Employee *)malloc(n * sizeof(struct Employee));
+    if (emp == NULL)
+    {
+        printf("Memory allocation failed!\n");
+        return 1;
+    }
+    printf("\nEnter Employee Details:\n");
+    for (i = 0; i < n; i++)
+    {
+        printf("\nEmployee %d\n", i + 1);
+        printf("Employee ID: ");
+        scanf("%d", &emp[i].employeeID);
+        printf("Name: ");
+        scanf(" %[^\n]", emp[i].name);
+        printf("Salary: ");
+        scanf("%f", &emp[i].salary);
+        printf("Department: ");
+        scanf(" %[^\n]", emp[i].department);
+    }
+    do
+    {
+        printf("\n===== Employee Management Menu =====\n");
+        printf("1. Insert Employee\n");
+        printf("2. Delete Employee\n");
+        printf("3. Search Employee by ID\n");
+        printf("4. Update Salary\n");
+        printf("5. Display All Employees\n");
+        printf("6. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        switch (choice)
+        {
+        case 1:
+            insertEmployee(&emp, &n);
+            break;
+        case 2:
+            deleteEmployee(&emp, &n);
+            break;
+        case 3:
+            searchEmployee(emp, n);
+            break;
+        case 4:
+            updateSalary(emp, n);
+            break;
+        case 5:
+            displayEmployees(emp, n);
+            break;
+        case 6:
+            printf("Exiting...\n");
+            break;
+        default:
+            printf("Invalid Choice!\n");
+        }
+    } while (choice != 6);
+    free(emp);
+    return 0;
+}
+void insertEmployee(struct Employee **emp, int *n)
+{
+    int pos, i;
+    printf("Enter position to insert (1 to %d): ", *n + 1);
+    scanf("%d", &pos);
+    if (pos < 1 || pos > *n + 1)
+    {
+        printf("Invalid Position!\n");
+        return;
+    }
+    *emp = (struct Employee *)realloc(*emp, (*n + 1) * sizeof(struct Employee));
+    for (i = *n; i >= pos; i--)
+    {
+        (*emp)[i] = (*emp)[i - 1];
+    }
+    printf("Enter Employee ID: ");
+    scanf("%d", &(*emp)[pos - 1].employeeID);
+    printf("Enter Name: ");
+    scanf(" %[^\n]", (*emp)[pos - 1].name);
+    printf("Enter Salary: ");
+    scanf("%f", &(*emp)[pos - 1].salary);
+    printf("Enter Department: ");
+    scanf(" %[^\n]", (*emp)[pos - 1].department);
+    (*n)++;
+    printf("Employee inserted successfully.\n");
+}
+void deleteEmployee(struct Employee **emp, int *n)
+{
+    int pos, i;
+    if (*n == 0)
+    {
+        printf("No employees to delete.\n");
+        return;
+    }
+    printf("Enter position to delete (1 to %d): ", *n);
+    scanf("%d", &pos);
+    if (pos < 1 || pos > *n)
+    {
+        printf("Invalid Position!\n");
+        return;
+    }
+    for (i = pos - 1; i < *n - 1; i++)
+    {
+        (*emp)[i] = (*emp)[i + 1];
+    }
+    (*n)--;
+    *emp = (struct Employee *)realloc(*emp, (*n) * sizeof(struct Employee));
+    printf("Employee deleted successfully.\n");
+}
+void searchEmployee(struct Employee *emp, int n)
+{
+    int id, i, found = 0;
+    printf("Enter Employee ID to search: ");
+    scanf("%d", &id);
+    for (i = 0; i < n; i++)
+    {
+        if (emp[i].employeeID == id)
+        {
+            printf("\nEmployee Found\n");
+            printf("ID         : %d\n", emp[i].employeeID);
+            printf("Name       : %s\n", emp[i].name);
+            printf("Salary     : %.2f\n", emp[i].salary);
+            printf("Department : %s\n", emp[i].department);
+            found = 1;
+            break;
+        }
+    }
+    if (!found)
+        printf("Employee not found.\n");
+}
+void updateSalary(struct Employee *emp, int n)
+{
+    int id, i;
+    float salary;
+    printf("Enter Employee ID: ");
+    scanf("%d", &id);
+    for (i = 0; i < n; i++)
+    {
+        if (emp[i].employeeID == id)
+        {
+            printf("Current Salary: %.2f\n", emp[i].salary);
+            printf("Enter New Salary: ");
+            scanf("%f", &salary);
+            emp[i].salary = salary;
+            printf("Salary updated successfully.\n");
+            return;
+        }
+    }
+    printf("Employee not found.\n");
+}
+void displayEmployees(struct Employee *emp, int n)
+{
+    int i;
+    if (n == 0)
+    {
+        printf("No employee records available.\n");
+        return;
+    }
+    printf("\n================ Employee Records ================\n");
+    for (i = 0; i < n; i++)
+    {
+        printf("\nEmployee %d\n", i + 1);
+        printf("Employee ID : %d\n", emp[i].employeeID);
+        printf("Name        : %s\n", emp[i].name);
+        printf("Salary      : %.2f\n", emp[i].salary);
+        printf("Department  : %s\n", emp[i].department);
+    }  }
