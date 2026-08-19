@@ -1,0 +1,165 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Structure to represent a Food Order
+typedef struct {
+    int orderId;
+    char customerName[50];
+    float totalAmount;
+} FoodOrder;
+
+// Structure to represent the Stack
+typedef struct {
+    FoodOrder *array;
+    int top;
+    int capacity;
+} Stack;
+
+// Function to initialize the stack
+void initializeStack(Stack *s, int capacity) {
+    s->capacity = capacity;
+    s->top = -1;
+    s->array = (FoodOrder *)malloc(s->capacity * sizeof(FoodOrder));
+    if (s->array == NULL) {
+        printf("Memory allocation failed! Exiting program.\n");
+        exit(1);
+    }
+}
+
+// Function to check if the stack is full
+int isFull(Stack *s) {
+    return s->top == s->capacity - 1;
+}
+
+// Function to check if the stack is empty
+int isEmpty(Stack *s) {
+    return s->top == -1;
+}
+
+// Push operation to add a food order to the stack
+void push(Stack *s) {
+    if (isFull(s)) {
+        printf("\n[Stack Overflow] Cannot add order. The stack is full!\n");
+        return;
+    }
+
+    s->top++;
+    printf("\nEnter Order ID: ");
+    scanf("%d", &s->array[s->top].orderId);
+    getchar(); // Clear the newline character from the input buffer
+
+    printf("Enter Customer Name: ");
+    fgets(s->array[s->top].customerName, sizeof(s->array[s->top].customerName), stdin);
+    s->array[s->top].customerName[strcspn(s->array[s->top].customerName, "\n")] = '\0'; // Remove trailing newline
+
+    printf("Enter Total Amount: ");
+    scanf("%f", &s->array[s->top].totalAmount);
+
+    printf("Order added successfully to the stack!\n");
+}
+
+// Pop operation to remove the most recent food order (LIFO)
+void pop(Stack *s) {
+    if (isEmpty(s)) {
+        printf("\n[Stack Underflow] Cannot remove order. The stack is empty!\n");
+        return;
+    }
+
+    FoodOrder poppedOrder = s->array[s->top];
+    s->top--;
+
+    printf("\n--- Popped Order Details (LIFO) ---\n");
+    printf("Order ID: %d\n", poppedOrder.orderId);
+    printf("Customer Name: %s\n", poppedOrder.customerName);
+    printf("Total Amount: $%.2f\n", poppedOrder.totalAmount);
+    printf("------------------------------------\n");
+}
+
+// Search operation to find a food order by its Order ID
+void search(Stack *s, int targetId) {
+    if (isEmpty(s)) {
+        printf("\nThe stack is empty. Nothing to search.\n");
+        return;
+    }
+
+    for (int i = s->top; i >= 0; i--) {
+        if (s->array[i].orderId == targetId) {
+            printf("\nOrder Found (Position: %d from bottom):\n", i + 1);
+            printf("Order ID: %d\n", s->array[i].orderId);
+            printf("Customer Name: %s\n", s->array[i].customerName);
+            printf("Total Amount: $%.2f\n", s->array[i].totalAmount);
+            return;
+        }
+    }
+    printf("\nOrder ID %d not found in the stack.\n", targetId);
+}
+
+// Display operation to show all orders in the stack from top to bottom
+void display(Stack *s) {
+    if (isEmpty(s)) {
+        printf("\nThe stack is empty. No orders to display.\n");
+        return;
+    }
+
+    printf("\n--- Current Stack Orders (Top to Bottom) ---\n");
+    for (int i = s->top; i >= 0; i--) {
+        printf("[%d] Order ID: %d | Customer: %s | Amount: $%.2f", 
+               i, s->array[i].orderId, s->array[i].customerName, s->array[i].totalAmount);
+        if (i == s->top) {
+            printf(" <- TOP");
+        }
+        printf("\n");
+    }
+    printf("--------------------------------------------\n");
+}
+
+int main() {
+    Stack s;
+    int capacity, choice, searchId;
+
+    printf("Enter the maximum capacity of the food order stack: ");
+    if (scanf("%d", &capacity) != 1 || capacity <= 0) {
+        printf("Invalid capacity. Exiting.\n");
+        return 1;
+    }
+
+    initializeStack(&s, capacity);
+
+    do {
+        printf("\n===== FOOD ORDER STACK MENU =====\n");
+        printf("1. Push (Add Order)\n");
+        printf("2. Pop (Remove Order)\n");
+        printf("3. Search by Order ID\n");
+        printf("4. Display All Orders\n");
+        printf("5. Exit\n");
+        printf("Enter your choice (1-5): ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                push(&s);
+                break;
+            case 2:
+                pop(&s);
+                break;
+            case 3:
+                printf("\nEnter Order ID to search: ");
+                scanf("%d", &searchId);
+                search(&s, searchId);
+                break;
+            case 4:
+                display(&s);
+                break;
+            case 5:
+                printf("\nExiting program. Freeing memory...\n");
+                break;
+            default:
+                printf("\nInvalid choice! Please select an option between 1 and 5.\n");
+        }
+    } while (choice != 5);
+
+    // Free dynamically allocated memory before exit
+    free(s.array);
+    return 0;
+}
